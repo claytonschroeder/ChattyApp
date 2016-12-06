@@ -22,25 +22,31 @@ class ChatBar extends Component {
     }
 //actions up
     submitMessage(event) {
-        if (event.which === 13) {
-            let message = {
-                content: this.state.content,
-                username: this.state.username,
-                type: "postMessage"
-            }
-//reset content to empty string after addMessage
-            this.props.addMessage(message);
-            this.setState({content: ''});
+      if (event.which === 13) {
+        let message = {
+          content: this.state.content,
+          username: this.state.username,
+          type: "postMessage"
         }
+//reset content to empty string after addMessage
+        this.props.addMessage(message);
+        this.setState({content: ''});
+      }
     }
 //actions up
     submitUsername(event) {
+      if (event.which === 13) {
+        if (this.props.username === this.state.username) {
+            return;
+        }
         let message = {
             content: this.props.username + " changed username to " + this.state.username,
             username: this.state.username,
             type: "postNotification"
         }
-    this.props.addMessage(message);
+        this.props.addMessage(message);
+      }
+
   }
 
     render() {
@@ -50,13 +56,7 @@ class ChatBar extends Component {
                 <input
                     onChange={this.changeUsername}
                     value={this.state.username}
-                    onKeyPress={
-                        (evt) => {
-                            if (evt.which === 13) {
-                                this.submitUsername
-                            }
-                        }
-                    }
+                    onKeyPress={ this.submitUsername }
                     onBlur={this.submitUsername}
                     id="username"
                     type="text"

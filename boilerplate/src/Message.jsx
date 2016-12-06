@@ -3,9 +3,13 @@ import React, {Component} from 'react';
 
 class Message extends Component {
   render() {
+    let classValue = "message";
+    if(this.props.type === "incomingNotification") {
+      classValue += " system"
+    }
     return (
       <div>
-        <div className="message">
+        <div className={classValue}>
           <span className="username">
             {this.props.username}
           </span>

@@ -6,16 +6,14 @@ class MessageList extends Component {
     console.log("Rendering MessageList.jsx")
     return (
       <div id="message-list">
-        {this.props.messages.map(function(msg) {
+        {this.props.messages.map(function(msg, index) {
           return <Message
-            key={msg.id}
+            key={index}
             type={msg.type}
             username={msg.username}
             content={msg.content}
           />
         })}
-        <div className="message system">
-        </div>
       </div>
     );
   }
