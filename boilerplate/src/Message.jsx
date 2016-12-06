@@ -1,10 +1,9 @@
-
 import React, {Component} from 'react';
+
 
 class Message extends Component {
   render() {
     return (
-      //username and message content from App.jsx
       <div>
         <div className="message">
           <span className="username">
@@ -13,7 +12,7 @@ class Message extends Component {
           <span className="content">
             {this.props.content}
           </span>
-          </div>
+        </div>
       </div>
     );
   }

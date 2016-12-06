@@ -1,52 +1,73 @@
-//app.jsx is the parent which needs access to messages and the currentUser.
-//to get the data from its "children"  it must import:
-// MessageList (messages) and ChatBar (currentUser).
 import React, {Component} from 'react';
-import MessageList from './MessageList.jsx';
 import ChatBar from './ChatBar.jsx';
+import MessageList from './MessageList.jsx';
 
-
-
-class App extends Component {
+ class App extends Component {
+//sets initial state of app
   constructor(props) {
     super(props);
     this.state = {
-      currentUser: {name: "Bob"},
-      messages: []
-    }
-  }
-  //concatinates a new message from the input
-  addMessage(username, content) {
-    console.log('app component received username', username, 'and content', content);
-    let newMessage = {username: username, content: content, id: Date.now()};
-    let listWithNewMessage = this.state.messages.concat(newMessage);
-    this.setState({messages: listWithNewMessage});
+      id: '',
+      username : {name: "Anonymous"},
+      messages: [],
+      value: '',
+      userCounter: ''
+    };
+    this.createNewMessage = this.createNewMessage.bind(this);
   }
 
-  // componentDidMount() {
-  //   console.log("componentDidMount <App />");
-  //   setTimeout(() => {
-  //     console.log("Simulating incoming message");
-  //     // Add a new message to the list of messages in the data store
-  //     const newMessage = {id: 3, username: "Michelle", content: "Hello there!"};
-  //     const messages = this.state.messages.concat(newMessage)
-  //     // Update the state of the app component.
-  //     // Calling setState will trigger a call to render() in App and all child components.
-  //     this.setState({messages: messages})
-  //   }, 3000);
-  // }
-//rednders the message list with the state of messages
+  createNewMessage(event) {
+    const newMessage = {
+      username: event.username,
+      content: event.content,
+      type: event.type
+    }
+    this.setState({username: {name: newMessage.username}})
+    this.socket.send(JSON.stringify(newMessage));
+  }
+
+//recieving data from server (data down)
+  componentDidMount() {
+    this.socket = new WebSocket('ws://localhost:8080');
+    this.socket.onopen = (event) => {
+      this.socket.onmessage = (event) => {
+        const dataDown = JSON.parse(event.data);
+        switch(dataDown.type) {
+          case "incomingMessage":
+          case "incomingNotification":
+          const updatedMessage = dataDown;
+          const newMessages = this.state.messages.concat(updatedMessage);
+          this.setState({messages: newMessages});
+          break;
+          case "clientCounter":
+          const clientCount = dataDown.content
+          this.setState({userCounter: clientCount});
+          break;
+          default:
+          throw new Error("Unknown event type " + dataDown);
+        }
+      };
+    }
+  }
+
   render() {
-    console.log("Rendering <App />");
+    console.log("Rendering App.jsx")
     return (
       <div>
         <nav>
           <h1>Chatty</h1>
+          <h3>{this.state.userCounter} users online</h3>
         </nav>
-        <MessageList messages={this.state.messages} />
-        <ChatBar currentUser={this.state.currentUser} newMessage={this.addMessage.bind(this)}/>
+        <MessageList
+        messages={this.state.messages}
+        />
+        <ChatBar
+        username={this.state.username.name}
+        addMessage={this.createNewMessage}
+        />
       </div>
     );
   }
 }
+
 export default App;
